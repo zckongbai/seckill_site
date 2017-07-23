@@ -14,15 +14,13 @@ $config = array(
 			),
 
 		'seckill'	=>	array(
+				'time_limit'	=>	5000,	//毫秒
+				'goods_number_multiple'	=>	5,	// 允许商品数量的多少倍的请求
 				'allow'	=>	'http://127.0.0.1:9501',
 				'soldout'	=>	'http://127.0.0.1:9500/goods/soldout.html'
 
 			),
 
-		'limit_user'	=>	array(
-				'time_limit'	=>	5000,	//毫秒
-
-			),
 	);
 
 return $config;

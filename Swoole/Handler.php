@@ -28,11 +28,11 @@ class Handler extends \Swoole\Http\HttpServer
     			$this->log->put(json_encode($get));
 
                 // 先检查用户
-                if (!$this->limit_user())
-                {   
-                    $response->status = "404"; 
-                    $this->redirect($this->config['request']['404']);
-                }
+                // if (!$this->limit_user())
+                // {   
+                //     $response->status = "404"; 
+                //     $this->redirect($this->config['request']['404']);
+                // }
 
                 // 检查商品
  				$good_id = $this->redis->hget('seckill_goods_id', $get['id']);
@@ -44,9 +44,9 @@ class Handler extends \Swoole\Http\HttpServer
  				}
 
 				$response->status = "302";
-
  				$good = $this->redis->hGetAll('goods:'.$get['id']);
- 				$queue_size = $good['number'] * 50; 
+                $goods_number_multiple = $this->config['seckill']['goods_number_multiple'] ? : 5;
+ 				$queue_size = $good['number'] * $goods_number_multiple; 
 
  				$queue_key = "site_queue_goods_id:" . $get['id'];
  				$queue = $this->redis->get($queue_key);
@@ -54,7 +54,8 @@ class Handler extends \Swoole\Http\HttpServer
  				{
  					$this->log->put("allow");
  					$this->redis->incr($queue_key);
- 					$this->redirect($this->config['seckill']['allow']);
+                    $url = $this->config['seckill']['allow'] . $request->server['request_uri'] . "?" . $request->server['query_string'] ;
+                    $this->redirect($url);
  				}
  				else
  				{
@@ -89,7 +90,7 @@ class Handler extends \Swoole\Http\HttpServer
 
         if (!$limit_res)
         {
-            $time_limmit = $this->config['limit_user']['time_limit'] ? : 5;
+            $time_limmit = $this->config['seckill']['time_limit'] ? : 5;
             $this->redis->setex($limit_key, $time_limmit);
             return true;
         }
